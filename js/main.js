@@ -55,6 +55,7 @@ scrollsUp.forEach(btns => {
 
 
 		const attributes = btns.getAttribute(`href`);
+		// console.log(attributes);
 
 		document.querySelector(`${attributes}`).scrollIntoView({
 			block: `start`,
