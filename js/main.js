@@ -181,7 +181,10 @@ navigationLink.forEach(link => {
 
 const cartTableGoods = document.querySelector(`.cart-table__goods`),
 	  cardTableTotal = document.querySelector(`.card-table__total`),
-	  cartCount = document.querySelector(`.cart-count`);
+	  cartCount = document.querySelector(`.cart-count`),
+	  clearBasket = document.querySelector(`.clear-basket`);
+
+
 
 const cart = {
 	cartGoods: [],
@@ -250,7 +253,6 @@ const cart = {
 					this.totalCounts();
 				});
 		}
-		console.log(goodItem);
 	},
 	totalCounts() {
 		let totalGoods = this.cartGoods.reduce((sum, item) => {
@@ -266,6 +268,12 @@ const cart = {
 };
 
 cart.totalCounts();
+
+clearBasket.addEventListener(`click`, (e) => {
+	cart.cartGoods.splice(0, cart.cartGoods.length);
+	cart.renderCart();
+	cart.totalCounts();
+});
 
 document.body.addEventListener(`click`, (e) => {
 	const target = e.target.closest(`.add-to-cart`);

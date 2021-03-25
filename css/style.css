@@ -381,6 +381,18 @@ button {
     justify-content: space-between;
 }
 
+.clear-basket {
+    position: absolute;
+    right: 31px;
+    top: 54px;
+    background-color: rgb(167,40,40);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    padding: 0px 7px;
+    cursor: pointer;
+}
+
 .modal-title {
     margin-top: 0;
     margin-bottom: 15px;
