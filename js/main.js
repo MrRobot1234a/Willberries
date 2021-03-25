@@ -20,8 +20,8 @@ const buttonCart = document.querySelector(`.button-cart`),
 //Modal Cart
 function showModalCart(selector) {
 	selector.classList.add(`show`);
-	modalWindow.style.overflow = `hidden`;
 	body.style.overflow = `hidden`;
+	cart.renderCart();
 }
 
 function hideModalCart(selector) {
@@ -174,4 +174,125 @@ navigationLink.forEach(link => {
 			});
 		}
 	});
+});
+
+
+//basket 
+
+const cartTableGoods = document.querySelector(`.cart-table__goods`),
+	  cardTableTotal = document.querySelector(`.card-table__total`),
+	  cartCount = document.querySelector(`.cart-count`);
+
+const cart = {
+	cartGoods: [],
+	renderCart() {
+		cartTableGoods.textContent = ``;
+		this.cartGoods.forEach(({id, name, price, count}) => {
+			const tr = document.createElement(`tr`);
+			tr.className = `cart-item`;
+			tr.innerHTML = `
+				<td>${name}</td>
+				<td>${price}$</td>
+				<td><button class="cart-btn-minus">-</button></td>
+				<td>${count}</td>
+				<td><button class="cart-btn-plus">+</button></td>
+				<td>${count * price}$</td>
+				<td><button class="cart-btn-delete">x</button></td>
+			`;
+			tr.setAttribute(`id`, id);
+
+			cartTableGoods.append(tr);
+		});
+
+		// this.totalCounts();
+		
+	},
+	deleteGood(id) {
+		this.cartGoods = this.cartGoods.filter(item => id !== item.id);
+		this.renderCart();
+	},
+	minusGood(id) {
+		this.cartGoods.forEach(item => {
+			if (item.id === id) {
+				if (item.count <= 1) {
+					this.deleteGood(id);
+				} else {
+					item.count--;
+				}
+				this.renderCart();
+			}
+		});
+	},
+	plusGood(id) {
+		this.cartGoods.forEach(item => {
+			if (item.id === id) {
+				item.count++;
+				this.renderCart();
+				this.totalCounts();
+			}
+		});
+	},
+	addCartGoods(id) {
+		const goodItem = this.cartGoods.find(item => item.id === id);
+		if (goodItem) {
+			this.plusGood(id);
+		} else {
+			this.totalCounts();
+			getGoods(`db/db.json`)
+				.then(data => data.find(item => item.id === id))
+				.then(({id, name, price}) => {
+					this.cartGoods.push({
+						id,
+						name,
+						price,
+						count: 1
+					});
+					this.totalCounts();
+				});
+		}
+		console.log(goodItem);
+	},
+	totalCounts() {
+		let totalGoods = this.cartGoods.reduce((sum, item) => {
+			return sum + item.count;
+		}, 0);
+		if (totalGoods !== 0) {
+			cartCount.textContent = totalGoods;
+		} else {
+			cartCount.textContent = ``;
+		}
+		
+	}
+};
+
+cart.totalCounts();
+
+document.body.addEventListener(`click`, (e) => {
+	const target = e.target.closest(`.add-to-cart`);
+	if (target) {
+		cart.addCartGoods(target.getAttribute(`data-id`));
+		console.log(target.getAttribute(`data-id`));
+		
+	}
+});
+
+cartTableGoods.addEventListener(`click`, (e) => {
+	const target = e.target;
+	if (target.tagName === `BUTTON`) {
+		const parentId = target.closest(`.cart-item`).getAttribute(`id`);
+		if (target.classList.contains(`cart-btn-delete`)) {
+			cart.deleteGood(parentId);
+			cart.totalCounts();
+		}
+
+		if (target.classList.contains(`cart-btn-minus`)) {
+			cart.minusGood(parentId);
+			cart.totalCounts();
+		}
+
+		if (target.classList.contains(`cart-btn-plus`)) {
+			cart.plusGood(parentId);
+			cart.totalCounts();
+		}
+	}
 });
