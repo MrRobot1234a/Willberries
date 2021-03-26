@@ -322,7 +322,13 @@ modalForm.addEventListener(`submit`, (e) => {
 	formData.append(`goods`, JSON.stringify(cart.cartGoods));
 	if (cart.cartGoods.length !== 0 && inputOne.value !== `` && inputTwo.value !== ``) {
 		post(formData)
-			.then(data => console.log(data));
+			.then(data => console.log(data))
+			.finally(() => {
+				hideModalCart(modalCart);
+				modalForm.reset();
+				cart.cartGoods.splice(0, cart.cartGoods.length);
+				cart.totalCounts();
+			});
 	} else {
 		if (cart.cartGoods.length === 0) {
 			alert(`Корзино пустой`);
