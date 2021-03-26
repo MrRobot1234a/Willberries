@@ -14,19 +14,18 @@ const buttonCart = document.querySelector(`.button-cart`),
 	  modalCart = document.querySelector(`#modal-cart`),
 	  modalWindow = document.querySelector(`#modal-window`),
 	  modalClose = document.querySelector(`.modal-close`),
-	  body = document.querySelector(`body`),
 	  parentModalWindow = document.querySelector(`.overlay`);
 
 //Modal Cart
 function showModalCart(selector) {
 	selector.classList.add(`show`);
-	body.style.overflow = `hidden`;
+	document.body.style.overflow = `hidden`;
 	cart.renderCart();
 }
 
 function hideModalCart(selector) {
 	selector.classList.remove(`show`);
-	body.style.overflow = ``;
+	document.body.style.overflow = ``;
 }
 
 buttonCart.addEventListener(`click`, (e) => {
@@ -130,7 +129,6 @@ more.addEventListener(`click`, (e) => {
 
 	getGoods(`db/db.json`)
 		.then(data => {
-			console.log(data);
 			data.forEach(({id, img, name, label, description, price, category, gender}) => {
 				new Cards(id, img, name, label, description, price, category, gender, longGoodsList).render();
 			});
@@ -167,7 +165,6 @@ navigationLink.forEach(link => {
 		if (value === `All`) {
 			getGoods(`db/db.json`)
 			.then(data => {
-				console.log(data);
 				data.forEach(({id, img, name, label, description, price, category, gender}) => {
 					new Cards(id, img, name, label, description, price, category, gender, longGoodsList).render();
 				});
@@ -207,7 +204,11 @@ const cart = {
 			cartTableGoods.append(tr);
 		});
 
-		// this.totalCounts();
+		const totalPrice = this.cartGoods.reduce((sum, item) => {
+			return sum + item.count * item.price;
+		}, 0);
+
+		cardTableTotal.textContent = totalPrice + `$`;
 		
 	},
 	deleteGood(id) {
@@ -279,8 +280,6 @@ document.body.addEventListener(`click`, (e) => {
 	const target = e.target.closest(`.add-to-cart`);
 	if (target) {
 		cart.addCartGoods(target.getAttribute(`data-id`));
-		console.log(target.getAttribute(`data-id`));
-		
 	}
 });
 
@@ -304,3 +303,36 @@ cartTableGoods.addEventListener(`click`, (e) => {
 		}
 	}
 });
+
+/*Sending data from the trash*/
+
+const modalForm = document.querySelector(`.modal-form`),
+	  modalInput = modalForm.querySelectorAll(`.modal-input`);
+
+const post = body => fetch(`server.php`, {
+	method: `POST`,
+	body: body
+});
+
+modalForm.addEventListener(`submit`, (e) => {
+	e.preventDefault();
+	const inputOne = modalForm.querySelector(`#input-1`),
+		  inputTwo = modalForm.querySelector(`#input-2`);
+	const formData = new FormData(modalForm);
+	formData.append(`goods`, JSON.stringify(cart.cartGoods));
+	if (cart.cartGoods.length !== 0 && inputOne.value !== `` && inputTwo.value !== ``) {
+		post(formData)
+			.then(data => console.log(data));
+	} else {
+		if (cart.cartGoods.length === 0) {
+			alert(`Корзино пустой`);
+			
+		}
+
+		if (inputOne.value === `` && inputTwo.value === ``) {
+			alert(`Заполните поле данных`);
+		}
+			
+	}
+});
+
